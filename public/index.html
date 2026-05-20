@@ -698,7 +698,8 @@ async function doSearch(){
     const wiki=await lookupWikidata(raw);
     let parentCompany,parentDesc,sourceLabel,matchedFb=null;
     if(wiki){parentCompany=wiki.ownerName;parentDesc=wiki.desc;sourceLabel='wiki';
-  if(!matchedFb)matchedFb=FALLBACK_MAP[raw.toLowerCase().trim()]||null;
+  if(!matchedFb){const k=raw.toLowerCase().trim();matchedFb=FALLBACK_MAP[k]||null;}
+  if(matchedFb){parentCompany=matchedFb.parent;sourceLabel='map';}
 }
     else{
       const key=raw.toLowerCase().trim();
