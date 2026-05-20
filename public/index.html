@@ -72,6 +72,45 @@ h1 span{color:var(--gold)}
 .disclaimer{margin-top:28px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);line-height:1.9}
 .disclaimer a{color:var(--text3);text-decoration:underline}
 @media(max-width:600px){header,.main{padding-left:20px;padding-right:20px}h1{font-size:26px}.total-amount{font-size:26px}}
+.about-section {
+  background: #0b0b14;
+  border-top: 1px solid var(--border);
+  padding: 60px 40px;
+  margin-top: 40px;
+}
+.about-inner { max-width: 900px; margin: 0 auto; }
+.about-grid { display: grid; grid-template-columns: 1fr 340px; gap: 48px; }
+.about-main h2 {
+  font-size: 28px; font-weight: 700; color: #fff;
+  letter-spacing: -0.5px; margin: 12px 0 20px; line-height: 1.2;
+}
+.about-main p {
+  font-size: 13px; color: var(--text2); line-height: 1.8;
+  margin-bottom: 14px;
+}
+.about-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 18px 20px; margin-bottom: 12px;
+}
+.about-card-title {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  letter-spacing: 3px; color: var(--gold); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.about-card-text { font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 10px; }
+.about-link {
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--text2); text-decoration: none; letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--text3); padding-bottom: 1px;
+  transition: color 0.15s;
+}
+.about-link:hover { color: var(--blue); }
+.about-link-gold { color: var(--gold) !important; }
+.about-link-gold:hover { color: #fff !important; }
+@media(max-width: 700px) {
+  .about-grid { grid-template-columns: 1fr; }
+  .about-section { padding: 40px 20px; }
+}
 </style>
 </head>
 <body>
@@ -265,5 +304,36 @@ function hide(id){document.getElementById(id).style.display='none';}
 function setStep(msg){document.getElementById('loadingStep').textContent=msg;}
 function showError(msg){const el=document.getElementById('errorBox');el.innerHTML='⚠ '+msg;el.style.display='block';}
 </script>
+<!-- ABOUT SECTION -->
+<div class="about-section">
+  <div class="about-inner">
+    <div class="about-grid">
+      <div class="about-main">
+        <div class="eyebrow">◆ About This Project</div>
+        <h2>Built for everyone.<br>Funded by no one.</h2>
+        <p>Follow the Money is a free, open-source civic transparency tool. We believe every person deserves to know how the brands they buy every day are influencing American politics — regardless of party, income, or background.</p>
+        <p>All data is sourced directly from the Federal Election Commission, a US government agency. No data is manipulated, filtered, or editorially selected. We show what the public record shows — nothing more, nothing less.</p>
+        <p>This tool is non-partisan. We display donation data for companies giving to Democrats, Republicans, and everyone in between equally. Our goal is informed citizens, not political outcomes.</p>
+      </div>
+      <div class="about-side">
+        <div class="about-card">
+          <div class="about-card-title">Open Source</div>
+          <p class="about-card-text">This project is fully open source. Developers can view the code, suggest improvements, or add more brands.</p>
+          <a href="https://github.com/getdealtin/follow-the-money" target="_blank" class="about-link">View on GitHub ↗</a>
+        </div>
+        <div class="about-card">
+          <div class="about-card-title">Support the Project</div>
+          <p class="about-card-text">This tool is free forever. If it's useful to you, consider helping cover hosting and development costs.</p>
+          <a href="https://paypal.me/getdealtin" target="_blank" class="about-link about-link-gold">Donate via PayPal ↗</a>
+        </div>
+        <div class="about-card">
+          <div class="about-card-title">Get in Touch</div>
+          <p class="about-card-text">Have a brand to suggest? Found an error? Want to collaborate?</p>
+          <a href="mailto:getdealtin.hq@gmail.com" class="about-link">getdealtin.hq@gmail.com ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
