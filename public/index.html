@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follow the Money</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#060608;--surface:#0d0d12;--surface2:#13131a;--border:#1c1c28;--border2:#242432;--gold:#e8a000;--gold-dim:#e8a00022;--blue:#3d8ef0;--red:#e04a3a;--green:#3ab87a;--text:#cccae0;--text2:#7070a0;--text3:#363650}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh}
+header{padding:40px 40px 32px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0a0a14 0%,var(--bg) 100%);position:relative;overflow:hidden}
+header::before{content:'$';position:absolute;right:-20px;top:-40px;font-size:280px;font-weight:700;color:#ffffff03;font-family:'Space Mono',monospace;pointer-events:none}
+.eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
+h1{font-size:36px;font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:10px}
+h1 span{color:var(--gold)}
+.header-desc{font-size:13px;color:var(--text2);max-width:520px;line-height:1.6}
+.main{max-width:900px;margin:0 auto;padding:36px 40px}
+.search-wrap{position:relative;margin-bottom:8px}
+.search-icon{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:18px;opacity:.25}
+#searchInput{width:100%;background:var(--surface);border:1px solid var(--border2);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:500;padding:18px 20px 18px 50px;border-radius:8px;outline:none;transition:border-color .2s,box-shadow .2s}
+#searchInput:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-dim)}
+#searchInput::placeholder{color:var(--text3)}
+.search-hint{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:24px;letter-spacing:.3px}
+.quick-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.quick-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px}
+.chip{background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:12px;font-family:'Space Grotesk',sans-serif;padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.loading{text-align:center;padding:60px 0;display:none}
+.loading-text{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--text3);text-transform:uppercase;margin-bottom:20px}
+.pulse-row{display:flex;justify-content:center;gap:6px}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 1.4s ease-in-out infinite}
+.pulse:nth-child(2){animation-delay:.2s}.pulse:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.1;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.loading-step{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-top:14px;letter-spacing:1px;min-height:16px}
+.error-box{background:#e04a3a10;border:1px solid #e04a3a30;color:var(--red);padding:14px 18px;border-radius:6px;font-size:13px;margin-bottom:20px;display:none;line-height:1.6}
+.empty{text-align:center;padding:80px 0}
+.empty-glyph{font-size:60px;margin-bottom:16px;opacity:.05}
+.empty-text{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--text3);text-transform:uppercase}
+.result-area{display:none}
+.company-header{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:26px 30px;margin-bottom:16px;position:relative;overflow:hidden}
+.company-header::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.product-trail{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.product-trail span{color:var(--text2)}
+.company-name{font-size:30px;font-weight:700;color:#fff;letter-spacing:-.5px;margin-bottom:6px}
+.company-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;max-width:620px}
+.total-row{display:flex;align-items:baseline;gap:12px;margin-bottom:18px}
+.total-amount{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--gold)}
+.total-label{font-size:11px;color:var(--text2);font-family:'Space Mono',monospace;letter-spacing:1px}
+.split-labels{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;font-family:'Space Mono',monospace}
+.split-dem{color:var(--blue)}.split-rep{color:var(--red)}
+.split-track{height:6px;border-radius:3px;background:var(--red);overflow:hidden}
+.split-dem-fill{height:100%;background:var(--blue);border-radius:3px;transition:width .8s ease}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:14px}
+.section-head{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--text3);text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.committee-item{padding:14px 0;border-bottom:1px solid var(--border)}
+.committee-item:last-child{border-bottom:none;padding-bottom:0}
+.committee-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:6px}
+.committee-stats{display:flex;gap:20px;flex-wrap:wrap}
+.cstat-val{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.cstat-lbl{font-size:11px;color:var(--text2);margin-left:4px}
+.disb-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.disb-item:last-child{border-bottom:none}
+.disb-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.disb-sub{font-size:11px;color:var(--text2)}
+.disb-amount{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--red);white-space:nowrap;margin-left:16px}
+.fec-link{display:inline-block;margin-top:10px;font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);text-decoration:none;border-bottom:1px solid var(--text3);padding-bottom:1px;transition:color .15s}
+.fec-link:hover{color:var(--gold);border-color:var(--gold)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;font-family:'Space Mono',monospace}
+.badge-wiki{background:#3d8ef015;color:var(--blue);border:1px solid #3d8ef030}
+.badge-map{background:#e8a00015;color:var(--gold);border:1px solid #e8a00030}
+.disclaimer{margin-top:28px;font-family:'Space Mono',monospace;font-size:9px;color:var(--text3);line-height:1.9}
+.disclaimer a{color:var(--text3);text-decoration:underline}
+@media(max-width:600px){header,.main{padding-left:20px;padding-right:20px}h1{font-size:26px}.total-amount{font-size:26px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">◆ Consumer Accountability Tool</div>
+  <h1>Follow the <span>Money</span></h1>
+  <p class="header-desc">Search any product or brand. We trace it to its parent company via Wikidata, then pull their political donations from FEC.gov.</p>
+</header>
+<div class="main">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="e.g. Doritos, Gillette, Instagram, Bud Light..." autocomplete="off" onkeydown="if(event.key==='Enter')doSearch()">
+  </div>
+  <div class="search-hint">WIKIDATA PARENT LOOKUP → FEC.GOV DONATIONS · ALL OPEN SOURCE · FREE FOR EVERYONE</div>
+  <div class="quick-label">Try these</div>
+  <div class="quick-chips" id="chips"></div>
+  <div class="error-box" id="errorBox"></div>
+  <div class="loading" id="loadingEl">
+    <div class="loading-text">Tracing the money trail</div>
+    <div class="pulse-row"><div class="pulse"></div><div class="pulse"></div><div class="pulse"></div></div>
+    <div class="loading-step" id="loadingStep"></div>
+  </div>
+  <div class="result-area" id="resultArea"></div>
+  <div class="empty" id="emptyState">
+    <div class="empty-glyph">$</div>
+    <div class="empty-text">Search any product to begin</div>
+  </div>
+</div>
+<script>
+const QUICK_PICKS=['Doritos','Instagram','Bud Light','Cheerios','Gillette','YouTube','Tylenol','Tesla','Dove','Xbox','AirPods','Whole Foods'];
+const FALLBACK_MAP={'doritos':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Doritos is owned by Frito-Lay, a wholly-owned PepsiCo subsidiary.'},'cheetos':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Cheetos is a Frito-Lay brand under PepsiCo.'},'lays':{parent:'PepsiCo',fecName:'PepsiCo',desc:"Lay's is made by Frito-Lay, a PepsiCo company."},'gatorade':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Gatorade was acquired by PepsiCo in 2001.'},'instagram':{parent:'Meta Platforms',fecName:'Meta Platforms',desc:'Instagram was acquired by Facebook (now Meta) in 2012 for $1B.'},'whatsapp':{parent:'Meta Platforms',fecName:'Meta Platforms',desc:'WhatsApp was acquired by Meta in 2014 for $19B.'},'youtube':{parent:'Alphabet',fecName:'Alphabet',desc:'YouTube was acquired by Google (Alphabet) in 2006 for $1.65B.'},'airpods':{parent:'Apple',fecName:'Apple',desc:"AirPods are Apple's wireless earbuds."},'iphone':{parent:'Apple',fecName:'Apple',desc:"iPhone is Apple's flagship smartphone."},'xbox':{parent:'Microsoft',fecName:'Microsoft',desc:"Xbox is Microsoft's gaming brand."},'linkedin':{parent:'Microsoft',fecName:'Microsoft',desc:'LinkedIn was acquired by Microsoft in 2016 for $26.2B.'},'bud light':{parent:'Anheuser-Busch InBev',fecName:'Anheuser-Busch',desc:'Bud Light is an AB InBev brand.'},'gillette':{parent:'Procter & Gamble',fecName:'Procter Gamble',desc:'Gillette was acquired by P&G in 2005 for $57B.'},'tide':{parent:'Procter & Gamble',fecName:'Procter Gamble',desc:'Tide is a flagship P&G brand.'},'dove':{parent:'Unilever',fecName:'Unilever',desc:'Dove is owned by Unilever.'},'cheerios':{parent:'General Mills',fecName:'General Mills',desc:'Cheerios is a General Mills brand.'},'tylenol':{parent:'Johnson & Johnson',fecName:'Johnson Johnson',desc:"Tylenol is J&J's consumer health brand."},'whole foods':{parent:'Amazon',fecName:'Amazon',desc:'Whole Foods was acquired by Amazon in 2017 for $13.7B.'},'tesla':{parent:'Tesla',fecName:'Tesla',desc:'Tesla Inc. manufactures electric vehicles.'},'espn':{parent:'Walt Disney',fecName:'Walt Disney',desc:'ESPN is an 80%-owned Walt Disney subsidiary.'},'sprite':{parent:'Coca-Cola',fecName:'Coca-Cola',desc:'Sprite is owned by The Coca-Cola Company.'},'purina':{parent:'Nestle',fecName:'Nestle',desc:'Purina pet food brands are owned by Nestlé.'}};
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const chips=document.getElementById('chips');
+  QUICK_PICKS.forEach(p=>{
+    const c=document.createElement('button');
+    c.className='chip';c.textContent=p;
+    c.onclick=()=>{document.getElementById('searchInput').value=p;doSearch();};
+    chips.appendChild(c);
+  });
+});
+
+async function doSearch(){
+  const raw=document.getElementById('searchInput').value.trim();
+  if(!raw)return;
+  hide('emptyState');hide('resultArea');hide('errorBox');show('loadingEl');setStep('');
+  try{
+    setStep('Step 1/3 · Looking up parent company via Wikidata...');
+    const wiki=await lookupWikidata(raw);
+    let parentCompany,parentDesc,sourceLabel;
+    if(wiki){parentCompany=wiki.ownerName;parentDesc=wiki.desc;sourceLabel='wiki';}
+    else{
+      const key=raw.toLowerCase().trim();
+      let fb=FALLBACK_MAP[key];
+      if(!fb)for(const[k,v]of Object.entries(FALLBACK_MAP)){if(key.includes(k)||k.includes(key)){fb=v;break;}}
+      if(fb){parentCompany=fb.parent;parentDesc=fb.desc;sourceLabel='map';}
+      else{parentCompany=raw;parentDesc=null;sourceLabel='direct';}
+    }
+    setStep(`Step 2/3 · Searching FEC records for ${parentCompany}...`);
+    const fecName=wiki?.fecName||parentCompany;
+    const committees=await searchFECCommittees(fecName);
+    setStep('Step 3/3 · Loading financial details...');
+    const finDetails=await loadFinDetails(committees.slice(0,4));
+    hide('loadingEl');
+    renderResults(raw,parentCompany,parentDesc,sourceLabel,committees,finDetails);
+  }catch(e){hide('loadingEl');showError('Error: '+e.message);}
+}
+
+async function apiGet(path,params={}){
+  const qs=new URLSearchParams(params).toString();
+  const url=`/api/${path}${qs?'?'+qs:''}`;
+  const res=await fetch(url);
+  if(!res.ok)throw new Error(`Server error ${res.status}`);
+  return res.json();
+}
+
+async function lookupWikidata(product){
+  try{
+    const sd=await apiGet('wikidata',{action:'wbsearchentities',search:product,language:'en',limit:3});
+    if(!sd.search||!sd.search.length)return null;
+    for(const entity of sd.search){
+      const ed=await apiGet('wikidata',{action:'wbgetentities',ids:entity.id,props:'claims|labels|descriptions',languages:'en'});
+      const e=ed.entities[entity.id];
+      if(!e?.claims)continue;
+      for(const prop of['P127','P749']){
+        if(e.claims[prop]?.length>0){
+          const ownerQid=e.claims[prop][0].mainsnak?.datavalue?.value?.id;
+          if(!ownerQid)continue;
+          const od=await apiGet('wikidata',{action:'wbgetentities',ids:ownerQid,props:'labels|descriptions',languages:'en'});
+          const oe=od.entities[ownerQid];
+          const ownerName=oe?.labels?.en?.value;
+          if(!ownerName)continue;
+          const fecName=ownerName.replace(/\b(Inc\.?|LLC|Ltd\.?|Corp\.?|Co\.?|plc|SE|NV|AG|SA)\b/gi,'').trim();
+          const pd=e.descriptions?.en?.value||'';
+          const odd=oe?.descriptions?.en?.value||'';
+          return{ownerName,fecName,desc:pd?`${e.labels?.en?.value||product}: ${pd}. Parent: ${ownerName}${odd?' ('+odd+')':''}.`:`${e.labels?.en?.value||product} is owned by ${ownerName}.`};
+        }
+      }
+    }
+    return null;
+  }catch(e){console.warn('Wikidata failed:',e);return null;}
+}
+
+async function searchFECCommittees(name){
+  const data=await apiGet('fec',{fecpath:'committees/',q:name,per_page:6,sort:'-last_f1_date'});
+  return data.results||[];
+}
+
+async function loadFinDetails(committees){
+  const results=[];
+  for(const c of committees){
+    try{
+      const fin=await apiGet('fec',{fecpath:`committee/${c.committee_id}/totals/`,cycle:2024,per_page:1});
+      const totals=(fin.results||[])[0]||null;
+      let disbursements=[];
+      try{
+        const disb=await apiGet('fec',{fecpath:'schedules/schedule_b/',committee_id:c.committee_id,per_page:5,sort:'-disbursement_amount'});
+        disbursements=disb.results||[];
+      }catch(e){}
+      results.push({committee:c,totals,disbursements});
+    }catch(e){results.push({committee:c,totals:null,disbursements:[]});}
+  }
+  return results;
+}
+
+function renderResults(product,parentCompany,desc,sourceLabel,committees,finDetails){
+  const totalRaised=finDetails.reduce((s,d)=>s+(d.totals?.receipts||0),0);
+  let demSpend=0,repSpend=0;
+  for(const{disbursements}of finDetails)for(const d of disbursements){
+    const n=(d.recipient_name||'').toUpperCase();
+    if(n.includes('DEMOCRAT')||n.includes('DCCC')||n.includes('DSCC')||n.includes('ACTBLUE')||n.includes('DNC'))demSpend+=d.disbursement_amount||0;
+    if(n.includes('REPUBLIC')||n.includes('NRCC')||n.includes('NRSC')||n.includes('WINRED')||n.includes('RNC'))repSpend+=d.disbursement_amount||0;
+  }
+  const tp=demSpend+repSpend;
+  const demPct=tp>0?Math.round((demSpend/tp)*100):null;
+  const repPct=demPct!==null?100-demPct:null;
+  const sb=sourceLabel==='wiki'?`<span class="badge badge-wiki" style="margin-left:10px;vertical-align:middle">Via Wikidata</span>`:sourceLabel==='map'?`<span class="badge badge-map" style="margin-left:10px;vertical-align:middle">Mapped</span>`:'';
+
+  let html=`<div class="company-header">
+    <div class="product-trail">You searched: <span>${esc(product)}</span> → Parent Company</div>
+    <div class="company-name">${esc(parentCompany)} ${sb}</div>
+    ${desc?`<div class="company-desc">${esc(desc)}</div>`:''}
+    ${totalRaised>0?`<div class="total-row"><div class="total-amount">${fmt(totalRaised)}</div><div class="total-label">raised via registered committees · 2024 cycle</div></div>`:`<div class="company-desc" style="color:var(--text3);margin-bottom:16px">No 2024 cycle FEC data found.</div>`}
+    ${demPct!==null?`<div class="split-labels"><span class="split-dem">⬤ Democrat ${demPct}%</span><span class="split-rep">${repPct}% Republican ⬤</span></div><div class="split-track"><div class="split-dem-fill" style="width:${demPct}%"></div></div><div style="font-size:9px;color:var(--text3);margin-top:6px;font-family:'Space Mono',monospace">BASED ON IDENTIFIABLE PARTISAN DISBURSEMENTS</div>`:''}
+  </div>`;
+
+  const ac=finDetails.filter(d=>d.totals);
+  if(ac.length>0){
+    html+=`<div class="section"><div class="section-head">FEC Registered Committees · 2024 Cycle</div>`;
+    for(const{committee:c,totals:t}of ac){
+      html+=`<div class="committee-item">
+        <div class="committee-name">${esc(c.name)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-family:'Space Mono',monospace">${c.committee_type_full||''} · ${c.committee_id}</div>
+        <div class="committee-stats">
+          ${t?.receipts?`<div><span class="cstat-val" style="color:var(--gold)">${fmt(t.receipts)}</span><span class="cstat-lbl">raised</span></div>`:''}
+          ${t?.disbursements?`<div><span class="cstat-val" style="color:var(--red)">${fmt(t.disbursements)}</span><span class="cstat-lbl">spent</span></div>`:''}
+          ${t?.cash_on_hand_end_period?`<div><span class="cstat-val" style="color:var(--blue)">${fmt(t.cash_on_hand_end_period)}</span><span class="cstat-lbl">cash on hand</span></div>`:''}
+          ${t?.individual_contributions?`<div><span class="cstat-val" style="color:var(--green)">${fmt(t.individual_contributions)}</span><span class="cstat-lbl">from individuals</span></div>`:''}
+        </div>
+        <a class="fec-link" href="https://www.fec.gov/data/committee/${c.committee_id}/" target="_blank">View on FEC.gov ↗</a>
+      </div>`;
+    }
+    html+=`</div>`;
+  }
+
+  const allDisb=finDetails.flatMap(d=>d.disbursements.map(x=>({...x,_cmt:d.committee.name})));
+  allDisb.sort((a,b)=>(b.disbursement_amount||0)-(a.disbursement_amount||0));
+  if(allDisb.length>0){
+    html+=`<div class="section"><div class="section-head">Where the Money Went · Top Expenditures</div>`;
+    for(const d of allDisb.slice(0,8)){
+      if(!d.recipient_name)continue;
+      html+=`<div class="disb-item"><div><div class="disb-name">${esc(d.recipient_name)}</div><div class="disb-sub">${esc(d.disbursement_description||'Expenditure')} · ${d.disbursement_date?.slice(0,10)||''}</div></div><div class="disb-amount">${fmt(d.disbursement_amount)}</div></div>`;
+    }
+    html+=`</div>`;
+  }
+
+  if(committees.length===0){
+    html+=`<div class="section"><div class="section-head">No FEC Committees Found</div><div style="color:var(--text2);font-size:13px;line-height:1.7">No registered FEC committees found for <strong>${esc(parentCompany)}</strong>.<br><br>Try <a href="https://www.fec.gov/data/committees/" target="_blank" style="color:var(--gold)">FEC.gov ↗</a> or <a href="https://www.opensecrets.org" target="_blank" style="color:var(--gold)">OpenSecrets.org ↗</a></div></div>`;
+  }
+
+  html+=`<div class="disclaimer">Parent company via <a href="https://www.wikidata.org" target="_blank">Wikidata</a> · Donations via <a href="https://api.open.fec.gov" target="_blank">FEC Open API</a> · All public record · 2024 cycle · Verify at <a href="https://www.fec.gov/data/" target="_blank">fec.gov</a> or <a href="https://www.opensecrets.org" target="_blank">opensecrets.org</a></div>`;
+
+  document.getElementById('resultArea').innerHTML=html;
+  show('resultArea');
+}
+
+function fmt(n){if(n==null||isNaN(n))return'—';if(Math.abs(n)>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(Math.abs(n)>=1e3)return'$'+(n/1e3).toFixed(0)+'K';return'$'+Number(n).toLocaleString();}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function show(id){document.getElementById(id).style.display='block';}
+function hide(id){document.getElementById(id).style.display='none';}
+function setStep(msg){document.getElementById('loadingStep').textContent=msg;}
+function showError(msg){const el=document.getElementById('errorBox');el.innerHTML='⚠ '+msg;el.style.display='block';}
+</script>
+</body>
+</html>
