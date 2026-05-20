@@ -608,7 +608,7 @@ footer a { color: #ffffff40; }
 
 <script>
 const QUICK_PICKS=['Doritos','Instagram','Bud Light','Cheerios','Gillette','YouTube','Tylenol','Tesla','Dove','Xbox','AirPods','Whole Foods'];
-const FALLBACK_MAP={'doritos':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Doritos is owned by Frito-Lay, a wholly-owned PepsiCo subsidiary.'},'cheetos':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Cheetos is a Frito-Lay brand under PepsiCo.'},'lays':{parent:'PepsiCo',fecName:'PepsiCo',desc:"Lay's is made by Frito-Lay, a PepsiCo company."},'gatorade':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Gatorade was acquired by PepsiCo in 2001.'},'instagram':{parent:'Meta Platforms',fecName:'Meta Platforms',desc:'Instagram was acquired by Facebook (now Meta) in 2012 for $1B.'},'whatsapp':{parent:'Meta Platforms',fecName:'Meta Platforms',desc:'WhatsApp was acquired by Meta in 2014 for $19B.'},'youtube':{parent:'Alphabet',fecName:'Alphabet',desc:'YouTube was acquired by Google (Alphabet) in 2006 for $1.65B.'},'airpods':{parent:'Apple',fecName:'Apple',desc:"AirPods are Apple's wireless earbuds."},'iphone':{parent:'Apple',fecName:'Apple',desc:"iPhone is Apple's flagship smartphone."},'xbox':{parent:'Microsoft',fecName:'Microsoft',desc:"Xbox is Microsoft's gaming brand."},'linkedin':{parent:'Microsoft',fecName:'Microsoft',desc:'LinkedIn was acquired by Microsoft in 2016 for $26.2B.'},'bud light':{parent:'Anheuser-Busch InBev',fecName:'Anheuser-Busch',desc:'Bud Light is an AB InBev brand.'},'gillette':{parent:'Procter & Gamble',fecName:'Procter Gamble',desc:'Gillette was acquired by P&G in 2005 for $57B.'},'tide':{parent:'Procter & Gamble',fecName:'Procter Gamble',desc:'Tide is a flagship P&G brand.'},'dove':{parent:'Unilever',fecName:'Unilever',desc:'Dove is owned by Unilever.'},'cheerios':{parent:'General Mills',fecName:'General Mills',desc:'Cheerios is a General Mills brand.'},'tylenol':{parent:'Johnson & Johnson',fecName:'Johnson Johnson',desc:"Tylenol is J&J's consumer health brand."},'whole foods':{parent:'Amazon',fecName:'Amazon',desc:'Whole Foods was acquired by Amazon in 2017 for $13.7B.'},'tesla':{parent:'Tesla',fecName:'Tesla',desc:'Tesla Inc. manufactures electric vehicles.'},'espn':{parent:'Walt Disney',fecName:'Walt Disney',desc:'ESPN is an 80%-owned Walt Disney subsidiary.'},'sprite':{parent:'Coca-Cola',fecName:'Coca-Cola',desc:'Sprite is owned by The Coca-Cola Company.'},'purina':{parent:'Nestle',fecName:'Nestle',desc:'Purina pet food brands are owned by Nestlé.'}};
+const FALLBACK_MAP={'doritos':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Doritos is owned by Frito-Lay, a wholly-owned PepsiCo subsidiary.'},'cheetos':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Cheetos is a Frito-Lay brand under PepsiCo.'},'lays':{parent:'PepsiCo',fecName:'PepsiCo',desc:"Lay's is made by Frito-Lay, a PepsiCo company."},'gatorade':{parent:'PepsiCo',fecName:'PepsiCo',desc:'Gatorade was acquired by PepsiCo in 2001.'},'instagram':{parent:'Meta Platforms',fecId:'C00502906',desc:'Instagram was acquired by Facebook (now Meta) in 2012 for $1B.'},'whatsapp':{parent:'Meta Platforms',fecId:'C00502906',desc:'WhatsApp was acquired by Meta in 2014 for $19B.'},'youtube':{parent:'Alphabet',fecName:'Alphabet',desc:'YouTube was acquired by Google (Alphabet) in 2006 for $1.65B.'},'airpods':{parent:'Apple',fecName:'Apple',desc:"AirPods are Apple's wireless earbuds."},'iphone':{parent:'Apple',fecName:'Apple',desc:"iPhone is Apple's flagship smartphone."},'xbox':{parent:'Microsoft',fecName:'Microsoft',desc:"Xbox is Microsoft's gaming brand."},'linkedin':{parent:'Microsoft',fecName:'Microsoft',desc:'LinkedIn was acquired by Microsoft in 2016 for $26.2B.'},'bud light':{parent:'Anheuser-Busch InBev',fecName:'Anheuser-Busch',desc:'Bud Light is an AB InBev brand.'},'gillette':{parent:'Procter & Gamble',fecName:'Procter Gamble',desc:'Gillette was acquired by P&G in 2005 for $57B.'},'tide':{parent:'Procter & Gamble',fecName:'Procter Gamble',desc:'Tide is a flagship P&G brand.'},'dove':{parent:'Unilever',fecName:'Unilever',desc:'Dove is owned by Unilever.'},'cheerios':{parent:'General Mills',fecName:'General Mills',desc:'Cheerios is a General Mills brand.'},'tylenol':{parent:'Johnson & Johnson',fecName:'Johnson Johnson',desc:"Tylenol is J&J's consumer health brand."},'whole foods':{parent:'Amazon',fecName:'Amazon',desc:'Whole Foods was acquired by Amazon in 2017 for $13.7B.'},'tesla':{parent:'Tesla',fecName:'Tesla',desc:'Tesla Inc. manufactures electric vehicles.'},'espn':{parent:'Walt Disney',fecName:'Walt Disney',desc:'ESPN is an 80%-owned Walt Disney subsidiary.'},'sprite':{parent:'Coca-Cola',fecName:'Coca-Cola',desc:'Sprite is owned by The Coca-Cola Company.'},'purina':{parent:'Nestle',fecName:'Nestle',desc:'Purina pet food brands are owned by Nestlé.'}};
 
 document.addEventListener('DOMContentLoaded',()=>{
   const chips=document.getElementById('chips');
@@ -627,19 +627,21 @@ async function doSearch(){
   try{
     setStep('Step 1/3 · Looking up parent company via Wikidata...');
     const wiki=await lookupWikidata(raw);
-    let parentCompany,parentDesc,sourceLabel;
-    if(wiki){parentCompany=wiki.ownerName;parentDesc=wiki.desc;sourceLabel='wiki';}
+    let parentCompany,parentDesc,sourceLabel,matchedFb=null;
+    if(wiki){parentCompany=wiki.ownerName;parentDesc=wiki.desc;sourceLabel='wiki';
+  if(!matchedFb)matchedFb=FALLBACK_MAP[raw.toLowerCase().trim()]||null;
+}
     else{
       const key=raw.toLowerCase().trim();
       let fb=FALLBACK_MAP[key];
       if(!fb)for(const[k,v]of Object.entries(FALLBACK_MAP)){if(key.includes(k)||k.includes(key)){fb=v;break;}}
-      if(fb){parentCompany=fb.parent;parentDesc=fb.desc;sourceLabel='map';}
-      else{parentCompany=raw;parentDesc=null;sourceLabel='direct';}
+      if(fb){parentCompany=fb.parent;parentDesc=fb.desc;sourceLabel='map';matchedFb=fb;}      else{parentCompany=raw;parentDesc=null;sourceLabel='direct';}
     }
     setStep(`Step 2/3 · Searching FEC records for ${parentCompany}...`);
-    const fecName=wiki?.fecName||parentCompany;
-    const committees=await searchFECCommittees(fecName);
-    setStep('Step 3/3 · Loading financial details...');
+    const fecId=matchedFb?.fecId||null;
+
+    const fecName=wiki?.fecName||matchedFb?.fecName||parentCompany;
+const committees=await searchFECCommittees(fecName,fecId);    setStep('Step 3/3 · Loading financial details...');
     const finDetails=await loadFinDetails(committees.slice(0,4));
     hide('loadingEl');
     renderResults(raw,parentCompany,parentDesc,sourceLabel,committees,finDetails);
@@ -681,8 +683,12 @@ async function lookupWikidata(product){
   }catch(e){console.warn('Wikidata failed:',e);return null;}
 }
 
-async function searchFECCommittees(name){
-  const data=await apiGet('fec',{fecpath:'committees/',q:name,per_page:6,sort:'-last_f1_date'});
+async function searchFECCommittees(name,fecId){
+  if(fecId){
+    const data=await apiGet('fec',{fecpath:'committees/',committee_id:fecId,per_page:1});
+    return data.results||[];
+  }
+  const data=await apiGet('fec',{fecpath:'committees/',q:name,per_page:3,sort:'-last_f1_date'});
   return data.results||[];
 }
 
